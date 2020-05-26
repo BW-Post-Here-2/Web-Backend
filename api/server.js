@@ -1,22 +1,26 @@
 const express = require("express");
 const cors = require("cors");
-const helmet = require("helmet");
 
-const authenticate = require("../auth/authenticate-middleware.js");
-const authRouter = require("../auth/auth-router.js");
-const jokesRouter = require("../jokes/jokes-router.js");
+const authRouter = require("../auth/authRouter");
+const authenticator = require("../auth/authenticator");
 
 const server = express();
-
-server.use(helmet());
-server.use(cors());
 server.use(express.json());
+server.use(cors());
 
 server.use("/api/auth", authRouter);
-server.use("/api/jokes", authenticate, jokesRouter);
 
 server.get("/", (req, res) => {
-  res.json({ api: "up" });
+  res.json({
+    message: "api up",
+    auth_endpoints: {
+      login: "POST /api/auth/login",
+      register: "POST /api/auth/register",
+    },
+    reddit_endpoints: {
+      message: "under development",
+    },
+  });
 });
 
 module.exports = server;

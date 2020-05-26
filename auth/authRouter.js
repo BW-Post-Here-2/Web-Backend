@@ -21,7 +21,7 @@ router.post("/register", userValidation, (req, res) => {
           .then(([id]) => {
             db("Users")
               .select("*")
-              .where(id)
+              .where({ id })
               .then(([user]) => {
                 //get new user in db
                 res.status(201).json(user);

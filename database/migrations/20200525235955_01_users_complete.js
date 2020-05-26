@@ -1,21 +1,23 @@
-exports.up = function (knex, Promise) {
+exports.up = function (knex) {
   return knex.schema
     .createTable("Users", (tbl) => {
-      tbl.increments("id");
+      tbl.increments().index();
       tbl.string("username", 256).notNullable().unique().index();
       tbl.string("password", 256).notNullable();
     })
-    .createTable("Subreddit", (tbl) => {
-      tbl.increments("id");
-      tbl.string("sub_title.name");
-      tbl.string("sub_title_descriptions");
+    .createTable("Subreddit", (table) => {
+      table.increments();
+
+      table.string("sub_title_name", 128).notNullable().unique().index();
+      table.string("sub_title_descriptions", 256).notNullable();
     })
-    .createTabe("User_profile", (tbl) => {
-      tbl.increments("id");
-      tbl.string("user_post_title");
+    .createTable("User_profile", (tab) => {
+      tab.increments();
+      tab.string("user_post_title", 128).notNullable().unique().index();
+      tab.string("user_post_descriptions", 256).notNullable();
     })
-    .createTabe("Posts", (tbl) => {
-      tbl.increments("id");
+    .createTable("Posts", (tbl) => {
+      tbl.increments();
       tbl.string("post_title");
       tbl.string("post_length");
 
@@ -28,16 +30,30 @@ exports.up = function (knex, Promise) {
         .onUpdate("CASCADE");
 
       tbl
-        .integer("Posts_users_id")
+        .integer("posts_users_id")
         .notNullable()
         .references("id")
         .inTable("User_profile")
         .onDelete("RESTRICT")
         .onUpdate("CASCADE");
     })
-    .createTabe("User_post_posted", (tbl) => {
+    .createTable("User_post_posted", (tbl) => {
       tbl.increments("id");
-      tbl.string("user_post_title");
+      tbl
+        .integer("user_id")
+        .notNullable()
+        .references("id")
+        .inTable("Users")
+        .onDelete("RESTRICT")
+        .onUpdate("CASCADE");
+
+      tbl
+        .integer("post_id")
+        .notNullable()
+        .references("id")
+        .inTable("Posts")
+        .onDelete("RESTRICT")
+        .onUpdate("CASCADE");
     });
 };
 

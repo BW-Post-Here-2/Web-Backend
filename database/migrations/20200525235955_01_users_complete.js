@@ -1,67 +1,50 @@
 exports.up = function (knex) {
   return knex.schema
-    .createTable("Users", (tbl) => {
-      tbl.increments().index();
+    .createTable("users", (tbl) => {
+      tbl.increments("id");
       tbl.string("username", 256).notNullable().unique().index();
       tbl.string("password", 256).notNullable();
     })
-    .createTable("Subreddit", (table) => {
-      table.increments();
+    .createTable("posts", (table) => {
+      table.increments("id");
 
-      table.string("sub_title_name", 128).notNullable().unique().index();
-      table.string("sub_title_descriptions", 256).notNullable();
+      // table
+      //   .integer("user_id")
+      //   .unsigned()
+      //   .notNullable()
+      //   .references("id")
+      //   .inTable("users")
+      //   .onUpdate("CASCADE")
+      //   .onDelete("CASCADE");
+      table.string("subreddits", 128).notNullable();
+      table.string("post_title", 128).notNullable();
+      table.text("post_content").notNullable();
     })
-    .createTable("User_profile", (tab) => {
-      tab.increments();
-      tab.string("user_post_title", 128).notNullable().unique().index();
-      tab.string("user_post_descriptions", 256).notNullable();
-    })
-    .createTable("Posts", (tbl) => {
-      tbl.increments();
-      tbl.string("post_title");
-      tbl.string("post_length");
-
-      tbl
-        .integer("subreddit_id")
-        .notNullable()
-        .references("id")
-        .inTable("Subreddit")
-        .onDelete("RESTRICT")
-        .onUpdate("CASCADE");
-
-      tbl
-        .integer("posts_users_id")
-        .notNullable()
-        .references("id")
-        .inTable("User_profile")
-        .onDelete("RESTRICT")
-        .onUpdate("CASCADE");
-    })
-    .createTable("User_post_posted", (tbl) => {
+    .createTable("predictions", (tbl) => {
       tbl.increments("id");
       tbl
         .integer("user_id")
+        .unsigned()
         .notNullable()
         .references("id")
-        .inTable("Users")
-        .onDelete("RESTRICT")
-        .onUpdate("CASCADE");
-
+        .inTable("users")
+        .onUpdate("CASCADE")
+        .onDelete("CASCADE");
       tbl
         .integer("post_id")
+        .unsigned()
         .notNullable()
         .references("id")
-        .inTable("Posts")
-        .onDelete("RESTRICT")
-        .onUpdate("CASCADE");
+        .inTable("posts")
+        .onUpdate("CASCADE")
+        .onDelete("CASCADE");
+      tbl.json("prediction");
     });
 };
 
 exports.down = function (knex) {
   return knex.schema
-    .dropTableIfExists("User_post_posted")
-    .dropTableIfExists("Posts")
-    .dropTableIfExists("User_profile")
-    .dropTableIfExists("Subreddit")
-    .dropTableIfExists("Users");
+    .dropTableIfExists("predictions")
+    .dropTableIfExists("posts")
+    .dropTableIfExists("users");
 };

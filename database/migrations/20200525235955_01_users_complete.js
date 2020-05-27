@@ -8,14 +8,15 @@ exports.up = function (knex) {
     .createTable("posts", (table) => {
       table.increments("id");
 
-      table
-        .integer("user_id")
-        .unsigned()
-        .notNullable()
-        .references("id")
-        .inTable("users")
-        .onUpdate("CASCADE")
-        .onDelete("CASCADE");
+      // table
+      //   .integer("user_id")
+      //   .unsigned()
+      //   .notNullable()
+      //   .references("id")
+      //   .inTable("users")
+      //   .onUpdate("CASCADE")
+      //   .onDelete("CASCADE");
+      table.string("subreddits", 128).notNullable();
       table.string("post_title", 128).notNullable();
       table.text("post_content").notNullable();
     })

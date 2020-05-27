@@ -66,7 +66,8 @@ router.get("/favorite", (req, res) => {
         "pr.user_id",
         "pr.post_id",
         "po.subreddits",
-        "po.post_title"
+        "po.post_title",
+        "po.post_content"
       )
       .join("posts as po", "po.id", "=", "pr.post_id")
       .where("pr.user_id", id)

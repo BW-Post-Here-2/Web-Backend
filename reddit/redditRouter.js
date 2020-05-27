@@ -82,6 +82,35 @@ router.get("/favorite", (req, res) => {
   });
 });
 
+router.delete("/favorite", (req, res) => {
+  if (!req.body.post_id) {
+    return res.status(403).json({ message: "Please provide the post ID" });
+  }
+  findIDbyusername(req.headers.authorization).then((id) => {
+    db("predictions")
+      .where({ user_id: id, post_id: req.body.post_id }, "*")
+      .delete()
+      .then((data) => {
+        console.log(data);
+        data
+          ? res
+              .status(200)
+              .json({
+                message:
+                  "Your favorite post is removed from favorite post list",
+                post_id: req.body.post_id,
+              })
+          : res
+              .status(201)
+              .json({ message: "Couldn't find favorite post with that id" });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({ message: "Error deleting post" });
+      });
+  });
+});
+
 function find() {
   return db("posts").select("*");
 }

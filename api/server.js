@@ -23,8 +23,8 @@ server.get("/", (req, res) => {
     },
     "reddit_endpoints_under_api/reddit": {
       posts: "GET /api/reddit/posts",
-      favorite: "POST /api/reddit/favorite",
-      favorite: "GET /api/reddit/favorite",
+      favorite1: "POST /api/reddit/favorite",
+      favorite2: "GET /api/reddit/favorite",
       message: "under development",
     },
   });

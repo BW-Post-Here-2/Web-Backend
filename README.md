@@ -23,6 +23,9 @@ username:"newAccount",
 password:"newAccount"
 }
 
+<h2>put /api/auth/user</h2>
+Takes "username" and "password" and if username is not already in the database creates a new user with those credentials. Returns a succesful message.
+
 <h1>Favorite</h1>
 
 <h2>GET /api/reddit/favorite</h2>

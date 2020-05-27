@@ -17,7 +17,7 @@ exports.up = function (knex) {
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
       table.string("post_title", 128).notNullable();
-      table.text("post_text").notNullable();
+      table.text("post_content").notNullable();
     })
     .createTable("predictions", (tbl) => {
       tbl.increments("id");

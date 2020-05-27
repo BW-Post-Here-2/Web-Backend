@@ -22,7 +22,9 @@ server.get("/", (req, res) => {
       register: "POST /api/auth/register",
     },
     "reddit_endpoints_under_api/reddit": {
-      post: "POST /api/reddit/post",
+      posts: "GET /api/reddit/posts",
+      favorite: "POST /api/reddit/favorite",
+      favorite: "GET /api/reddit/favorite",
       message: "under development",
     },
   });

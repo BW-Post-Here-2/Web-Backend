@@ -32,17 +32,14 @@ router.post("/favorite", (req, res) => {
         db("predictions as pr")
           .join("posts as po", "pr.post_id", "=", "po.id")
           .select("pr.post_id", "pr.user_id")
-          .where({ user_id: req.body.user_id, post_id: req.body.post_id })
+          .where({ user_id: user_id, post_id: req.body.post_id })
           .first()
           .then((post) => {
             if (post) {
               res.status(403).json({ message: "You already liked that post" });
             } else {
               db("predictions")
-                .insert(
-                  { user_id: req.body.user_id, post_id: req.body.post_id },
-                  "*"
-                )
+                .insert({ user_id: user_id, post_id: req.body.post_id }, "*")
                 .then(([data]) => {
                   data
                     ? res

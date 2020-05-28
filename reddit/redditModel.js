@@ -24,7 +24,7 @@ function findIDbyusername(token) {
     .where({ username: username })
     .first()
     .then(({ id }) => {
-      console.log("findIDbyusername", id);
+      console.log("findIDbyusername", { id });
       return id;
     });
 }

@@ -31,14 +31,17 @@ router.post("/favorite", (req, res) => {
         db("predictions as pr")
           .join("posts as po", "pr.post_id", "=", "po.id")
           .select("pr.post_id", "pr.user_id")
-          .where({ user_id: user_id, post_id: req.body.post_id })
+          .where({ user_id: req.body.user_id, post_id: req.body.post_id })
           .first()
           .then((post) => {
             if (post) {
               res.status(403).json({ message: "You already liked that post" });
             } else {
               db("predictions")
-                .insert({ user_id: user_id, post_id: req.body.post_id }, "*")
+                .insert(
+                  { user_id: req.body.user_id, post_id: req.body.post_id },
+                  "*"
+                )
                 .then(([data]) => {
                   data
                     ? res
@@ -91,15 +94,12 @@ router.delete("/favorite", (req, res) => {
       .where({ user_id: id, post_id: req.body.post_id }, "*")
       .delete()
       .then((data) => {
-        console.log(data);
+        // console.log(data);
         data
-          ? res
-              .status(200)
-              .json({
-                message:
-                  "Your favorite post is removed from favorite post list",
-                post_id: req.body.post_id,
-              })
+          ? res.status(200).json({
+              message: "Your favorite post is removed from favorite post list",
+              post_id: req.body.post_id,
+            })
           : res
               .status(201)
               .json({ message: "Couldn't find favorite post with that id" });
@@ -121,7 +121,7 @@ function findByPostID(id) {
 
 function findIDbyusername(token) {
   const { username } = jwt.verify(token, secrets.secret);
-  console.log(username);
+  // console.log(username);
   return db("users")
     .select("id")
     .where({ username: username })

@@ -3,11 +3,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secrets = require("../auth/secrets");
 const authenticator = require("../auth/authenticator");
+const Reddit = require("./redditModel");
 
 const db = require("../database/dbConfig");
 
 router.get("/posts", (req, res) => {
-  find()
+  Reddit.find()
     .then((data) => {
       res.status(200).json(data);
     })
@@ -21,17 +22,17 @@ router.post("/favorite", (req, res) => {
   if (!req.body.post_id) {
     return res.status(403).json({ message: "Missing post id" });
   }
-  findByPostID(req.body.post_id).then((data) => {
+  Reddit.findByPostID(req.body.post_id).then((data) => {
     // select pr.post_id, pr.user_id
     // from predictions as pr
     // join posts as po on po.id = pr.post_id
 
     if (data) {
-      findIDbyusername(req.headers.authorization).then((user_id) => {
+      Reddit.findIDbyusername(req.headers.authorization).then((user_id) => {
         db("predictions as pr")
           .join("posts as po", "pr.post_id", "=", "po.id")
           .select("pr.post_id", "pr.user_id")
-          .where({ user_id: user_id, post_id: req.body.post_id })
+          .where({ post_id: req.body.post_id })
           .first()
           .then((post) => {
             if (post) {
@@ -58,7 +59,7 @@ router.post("/favorite", (req, res) => {
 });
 
 router.get("/favorite", (req, res) => {
-  findIDbyusername(req.headers.authorization).then((id) => {
+  Reddit.findIDbyusername(req.headers.authorization).then((id) => {
     // console.log(id);
     db("predictions as pr")
       .select(
@@ -86,7 +87,7 @@ router.delete("/favorite", (req, res) => {
   if (!req.body.post_id) {
     return res.status(403).json({ message: "Please provide the post ID" });
   }
-  findIDbyusername(req.headers.authorization).then((id) => {
+  Reddit.findIDbyusername(req.headers.authorization).then((id) => {
     db("predictions")
       .where({ user_id: id, post_id: req.body.post_id }, "*")
       .delete()
@@ -107,26 +108,5 @@ router.delete("/favorite", (req, res) => {
       });
   });
 });
-
-function find() {
-  return db("posts").select("*");
-}
-
-function findByPostID(id) {
-  return db("posts").select("*").where({ id }).first();
-}
-
-function findIDbyusername(token) {
-  const { username } = jwt.verify(token, secrets.secret);
-  // console.log(username);
-  return db("users")
-    .select("id")
-    .where({ username: username })
-    .first()
-    .then(({ id }) => {
-      console.log("findIDbyusername", id);
-      return id;
-    });
-}
 
 module.exports = router;

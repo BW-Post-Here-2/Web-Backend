@@ -3,8 +3,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secrets = require("./secrets");
 const authenticator = require("./authenticator");
+const Users = require("./authModel");
 
 const db = require("../database/dbConfig");
+
+router.get("/", authenticator, (req, res) => {
+  Users.find()
+    .then((users) => {
+      res.status(200).json({ users, jwt: req.jwt });
+    })
+    .catch((err) => res.send(err));
+});
 
 router.post("/register", userValidation, (req, res) => {
   const credentials = req.body;
@@ -31,7 +40,7 @@ router.post("/register", userValidation, (req, res) => {
             console.log(err);
           });
       } else {
-        res.status(201).json({ message: "User is already registered" });
+        res.status(402).json({ message: "User is already registered" });
       }
     })
     .catch((err) => {

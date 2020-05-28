@@ -5,6 +5,9 @@ const bcrypt = require("bcryptjs");
 const db = require("../database/dbConfig");
 const auth = require("../auth/authModel");
 let volunteerToken;
+const jwt = require("jsonwebtoken");
+const secrets = require("../auth/secrets");
+let token;
 
 beforeEach(() => {
   return db.migrate
@@ -105,6 +108,8 @@ describe("test login post", () => {
     expect(res.type).toBe("application/json");
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("token");
+    // console.log(res);
+    token = res.body.token;
   });
 });
 
@@ -135,35 +140,38 @@ describe("POST /api/users/register", () => {
     it("get all users as long as you are logged in", async () => {
       const res = await supertest(server)
         .get("/api/auth/user")
-        .set(
-          "Authorization",
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1vbGx5IiwiaWF0IjoxNTkwNjQwNjkzLCJleHAiOjE1OTEyNDU0OTN9.xVru6VlmNo2fwSd3QwrEhotCxLWFaOCbAkJ4QQIeDTU"
-        )
+        .set("Authorization", token)
         .expect(200);
     });
   });
-  // console.log({ token });
 
-  // });
-  //   it("should correct length of user list", async () => {
-  //     await model.add({ username: "Sherlock", password: "123abc" });
+  it("should correct length of user list", async () => {
+    await auth.add({ username: "Sherlock", password: "123abc" });
 
-  //     // read data from the table
-  //     const users = await db("users");
-  //     let amount = users.length;
-  //     expect(users).toHaveLength(amount);
-  //   });
+    // read data from the table
+    const users = await db("users");
+    let amount = users.length;
+    expect(users).toHaveLength(amount);
+    console.log(`expect(users).toHaveLength(amount)`, amount);
+  });
 });
 
-// describe("POST /api/users/login", () => {
-//   it("login works without a correct credentials?", function (done) {
-//     return supertest(server)
-//       .post("/api/auth/login")
-//       .send({ username: "Who", password: "123123" })
-//       .expect(401)
-//       .end(function (err, res) {
-//         if (err) return done(err);
-//         done();
-//       });
-//   });
-// });
+describe("DELETE /users/:id", () => {
+  it("should return correct length after remove users", async () => {
+    const users = db("users");
+    let amount = users.length;
+    await auth.remove(amount - 1);
+
+    const data = await db("users");
+    newAmount = data.length;
+    expect(data).toHaveLength(newAmount);
+  });
+  it("should return undefine on the deleted id", async () => {
+    const users = db("users");
+    let amount = users.length;
+    await auth.remove(amount - 1);
+    // read data from the table
+    const newUsers = await db("users");
+    expect(newUsers[newUsers.length]).toBeUndefined();
+  });
+});

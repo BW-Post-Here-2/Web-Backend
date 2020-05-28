@@ -5,6 +5,9 @@ const secrets = require("./secrets");
 module.exports = {
   find,
   generateToken,
+  findBy,
+  add,
+  findById,
 };
 
 function find() {
@@ -19,4 +22,29 @@ function generateToken(user) {
     expiresIn: "7d",
   };
   return jwt.sign(payload, secrets.secret, options);
+}
+
+function findBy(filter) {
+  console.log("filter", filter);
+  return (
+    db("users as u")
+      // .join("roles as r", "u.role", "=", "r.id")
+      .where(filter)
+  );
+  // .select("u.id", "u.username", "r.name as role", "u.password")
+  // .orderBy("u.id");
+}
+
+async function add(users) {
+  try {
+    const [id] = await db("users").insert(users, "id");
+
+    return findById(id);
+  } catch (error) {
+    throw error;
+  }
+}
+
+function findById(id) {
+  return db("users").where({ id }).first();
 }

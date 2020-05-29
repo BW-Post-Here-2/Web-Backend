@@ -8,6 +8,7 @@ module.exports = {
   findBy,
   add,
   findById,
+  remove,
 };
 
 function find() {
@@ -43,6 +44,10 @@ async function add(users) {
   } catch (error) {
     throw error;
   }
+}
+
+function remove(id) {
+  return db("users").where({ id }).del();
 }
 
 function findById(id) {

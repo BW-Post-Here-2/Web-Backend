@@ -61,7 +61,9 @@ async function add(post) {
 }
 
 function remove(id) {
-  return db("posts").where({ id }).del();
+  return db("predictions")
+    .where({ user_id: id, post_id: req.body.post_id }, "*")
+    .delete();
 }
 
 async function update(id, body) {

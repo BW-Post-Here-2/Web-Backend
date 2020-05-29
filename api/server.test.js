@@ -4,6 +4,7 @@ const server = require("./server");
 const bcrypt = require("bcryptjs");
 const db = require("../database/dbConfig");
 const auth = require("../auth/authModel");
+const Reddit = require("../reddit/redditModel");
 let volunteerToken;
 const jwt = require("jsonwebtoken");
 const secrets = require("../auth/secrets");
@@ -152,11 +153,11 @@ describe("POST /api/users/register", () => {
     const users = await db("users");
     let amount = users.length;
     expect(users).toHaveLength(amount);
-    console.log(`expect(users).toHaveLength(amount)`, amount);
+    // console.log(`expect(users).toHaveLength(amount)`, amount);
   });
 });
 
-describe("DELETE /users/:id", () => {
+describe("DELETE /favorite", () => {
   it("should return correct length after remove users", async () => {
     const users = db("users");
     let amount = users.length;
@@ -173,5 +174,34 @@ describe("DELETE /users/:id", () => {
     // read data from the table
     const newUsers = await db("users");
     expect(newUsers[newUsers.length]).toBeUndefined();
+  });
+});
+
+describe("test favorite post", () => {
+  test("register & login to get token then favorite", async () => {
+    const register = await supertest(server)
+      .post("/api/auth/register")
+      .send({ username: "david", password: "123123123" });
+    const res = await supertest(server)
+      .post("/api/auth/login")
+      .send({ username: "david", password: "123123123" });
+    // expect(res.type).toBe("application/json");
+    // expect(res.status).toBe(201);
+    // expect(res.body).toHaveProperty("token");
+    // console.log(res);
+
+    // console.log(res);
+    let newToken;
+    newToken = res.body.token;
+    // console.log(newToken);
+
+    const deleteFavorite = await supertest(server)
+      .post("/api/reddit/fovorite")
+      .set("Authorization", newToken)
+      .then((data) => {
+        console.log("data", data);
+      });
+    console.log("status", deleteFavorite.status);
+    expect(deleteFavorite).toBeDefined();
   });
 });

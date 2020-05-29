@@ -23,8 +23,16 @@ username:"newAccount",
 password:"newAccount"
 }
 
-<h2>put /api/auth/user</h2>
+<h2>UPDATE /api/auth/user</h2>
 Takes "username" and "password" and if username is not already in the database creates a new user with those credentials. Returns a succesful message.
+
+<h1>reddit posting</h1>
+
+<h2>POST /api/reddit/posts</h2>
+Takes "subreddits","post_title",and "post_content" and if these are not entered, you wont be able to create a new post into post database.
+
+<h2>GET /api/reddit/posts</h2>
+Returns the newly created posts with previous posts.
 
 <h1>Favorite</h1>
 

@@ -18,6 +18,28 @@ router.get("/posts", (req, res) => {
     });
 });
 
+router.post("/posts", (req, res) => {
+  const anotherPost = req.body;
+  Reddit.addPost(anotherPost)
+    .then((post) => {
+      if (post) {
+        res.status(201).json(post);
+      } else {
+        res.status(404).json({ message: "Couldn't make the post." });
+      }
+      s;
+    })
+    .catch((err) => {
+      res.status(500).json({ message: "Failed to create new post" });
+    });
+});
+
+// select u.id ,po.subreddits, po.post_title,po.post_content
+// from posts as po
+// join predictions as pr on po.id = pr.post_id
+// join users as u on u.id = pr.user_id
+// where u.id = 8
+
 router.post("/favorite", (req, res) => {
   if (!req.body.post_id) {
     return res.status(403).json({ message: "Missing post id" });

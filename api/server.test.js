@@ -177,7 +177,7 @@ describe("DELETE /favorite", () => {
   });
 });
 
-describe("test favorite post", () => {
+describe("test updating user", () => {
   test("register & login to get token then favorite", async () => {
     const register = await supertest(server)
       .post("/api/auth/register")
@@ -189,19 +189,38 @@ describe("test favorite post", () => {
     // expect(res.status).toBe(201);
     // expect(res.body).toHaveProperty("token");
     // console.log(res);
+    const updatedUser = await supertest(server)
+      .put("/api/auth/user")
+      .set("authorization", res.body.token)
+      .send({ username: "david", password: "321321321" });
+    expect(updatedUser.status).toBe(201);
 
-    // console.log(res);
-    let newToken;
-    newToken = res.body.token;
-    // console.log(newToken);
+    // const updateUser = db("users")
+    //   .select("id")
+    //   .where({ username })
+    //   .first()
+    //   .then((id) => {
+    //     console.log(id);
+    //   });
 
-    const deleteFavorite = await supertest(server)
-      .post("/api/reddit/fovorite")
-      .set("Authorization", newToken)
-      .then((data) => {
-        console.log("data", data);
-      });
-    console.log("status", deleteFavorite.status);
-    expect(deleteFavorite).toBeDefined();
+    // const { username } = jwt.verify(token, secrets.secret);
   });
 });
+
+// describe("PATCH /students/1", () => {
+//   test("It responds with an updated student", async () => {
+//     const newStudent = await request(app).post("/students").send({
+//       name: "Another one",
+//     });
+//     const updatedStudent = await request(app)
+//       .patch(`/students/${newStudent.body.id}`)
+//       .send({ name: "updated" });
+//     expect(updatedStudent.body.name).toBe("updated");
+//     expect(updatedStudent.body).toHaveProperty("id");
+//     expect(updatedStudent.statusCode).toBe(200);
+
+//     // make sure we have 3 students
+//     const response = await request(app).get("/students");
+//     expect(response.body.length).toBe(3);
+//   });
+// });

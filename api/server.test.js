@@ -5,16 +5,23 @@ const bcrypt = require("bcryptjs");
 const db = require("../database/dbConfig");
 const auth = require("../auth/authModel");
 const Reddit = require("../reddit/redditModel");
-let volunteerToken;
+// let volunteerToken;
 const jwt = require("jsonwebtoken");
 const secrets = require("../auth/secrets");
-let token;
 
-beforeEach(() => {
-  return db.migrate
+let volunteerToken;
+
+beforeEach(async () => {
+  await db.migrate
     .rollback()
     .then(() => db.migrate.latest())
     .then(() => db.seed.run());
+
+  return supertest(server).post("/api/auth/register").send({
+    username: "David",
+    password: "123123123",
+  });
+  volunteerToken = res.body.token;
 });
 
 describe("server", () => {
@@ -177,7 +184,7 @@ describe("DELETE /favorite", () => {
   });
 });
 
-describe("test updating user", () => {
+describe("PUT API/AUTH/USER updating user", () => {
   test("register & login to get token then favorite", async () => {
     const register = await supertest(server)
       .post("/api/auth/register")
@@ -185,42 +192,82 @@ describe("test updating user", () => {
     const res = await supertest(server)
       .post("/api/auth/login")
       .send({ username: "david", password: "123123123" });
-    // expect(res.type).toBe("application/json");
-    // expect(res.status).toBe(201);
-    // expect(res.body).toHaveProperty("token");
-    // console.log(res);
+
     const updatedUser = await supertest(server)
       .put("/api/auth/user")
       .set("authorization", res.body.token)
       .send({ username: "david", password: "321321321" });
     expect(updatedUser.status).toBe(201);
-
-    // const updateUser = db("users")
-    //   .select("id")
-    //   .where({ username })
-    //   .first()
-    //   .then((id) => {
-    //     console.log(id);
-    //   });
-
-    // const { username } = jwt.verify(token, secrets.secret);
   });
 });
 
-// describe("PATCH /students/1", () => {
-//   test("It responds with an updated student", async () => {
-//     const newStudent = await request(app).post("/students").send({
-//       name: "Another one",
-//     });
-//     const updatedStudent = await request(app)
-//       .patch(`/students/${newStudent.body.id}`)
-//       .send({ name: "updated" });
-//     expect(updatedStudent.body.name).toBe("updated");
-//     expect(updatedStudent.body).toHaveProperty("id");
-//     expect(updatedStudent.statusCode).toBe(200);
+// describe("POST api/reddit/post able to make a new post", () => {
+//   test("first let's make the foundation", async () => {
+//     const register = await supertest(server)
+//       .post("/api/auth/register")
+//       .send({ username: "david", password: "123123123" });
+//     const res = await supertest(server)
+//       .post("/api/auth/login")
+//       .send({ username: "david", password: "123123123" });
 
-//     // make sure we have 3 students
-//     const response = await request(app).get("/students");
-//     expect(response.body.length).toBe(3);
+//     const updatedUser = await supertest(server)
+//       .put("/api/auth/user")
+//       .set("authorization", res.body.token)
+//       .send({ username: "david", password: "321321321" });
+//     const post = await supertest(server)
+//       .post("/api/reddit/posts")
+//       .set("authorization", res.body.token)
+//       .send({
+//         subreddits: "CONVERSATION",
+//         post_title: "How to win over friends and influence people",
+//         post_content: "This book still can apply to our life!",
+//       });
+//     // const favorite = await supertest(server)
+//     //   .post("/api/reddit/favorite")
+//     //   .set("authorization", res.body.token)
+//     //   .send({ post_id: "1" });
+//     // console.log(post);
+//     expect(post.status).toBe(201);
 //   });
 // });
+
+describe("POST api/reddit/favorite able to favorite a post", () => {
+  test("first let's make the foundation", async () => {
+    const register = await supertest(server)
+      .post("/api/auth/register")
+      .send({ username: "david", password: "123123123" });
+    const res = await supertest(server)
+      .post("/api/auth/login")
+      .send({ username: "david", password: "123123123" });
+
+    const favorite = await supertest(server)
+      .post("/api/reddit/favorite")
+      .set("authorization", res.body.token)
+      .send({ post_id: "1" });
+    // console.log(favorite);
+    expect(favorite.status).toBe(201);
+  });
+});
+
+describe("DELETE api/reddit/favorite able to delete a favorited post", () => {
+  test("first let's make the foundation", async () => {
+    const register = await supertest(server)
+      .post("/api/auth/register")
+      .send({ username: "david", password: "123123123" });
+    const res = await supertest(server)
+      .post("/api/auth/login")
+      .send({ username: "david", password: "123123123" });
+
+    const favorite = await supertest(server)
+      .post("/api/reddit/favorite")
+      .set("authorization", res.body.token)
+      .send({ post_id: "1" });
+
+    const deletePost = await supertest(server)
+      .delete("/api/reddit/favorite")
+      .set("authorization", res.body.token)
+      .send({ post_id: "1" });
+    // console.log(deletePost);
+    expect(deletePost.status).toBe(200);
+  });
+});

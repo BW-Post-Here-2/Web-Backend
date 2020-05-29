@@ -4,6 +4,7 @@ const server = require("./server");
 const bcrypt = require("bcryptjs");
 const db = require("../database/dbConfig");
 const auth = require("../auth/authModel");
+const Reddit = require("../reddit/redditModel");
 let volunteerToken;
 const jwt = require("jsonwebtoken");
 const secrets = require("../auth/secrets");
@@ -152,11 +153,11 @@ describe("POST /api/users/register", () => {
     const users = await db("users");
     let amount = users.length;
     expect(users).toHaveLength(amount);
-    console.log(`expect(users).toHaveLength(amount)`, amount);
+    // console.log(`expect(users).toHaveLength(amount)`, amount);
   });
 });
 
-describe("DELETE /users/:id", () => {
+describe("DELETE /favorite", () => {
   it("should return correct length after remove users", async () => {
     const users = db("users");
     let amount = users.length;
@@ -175,3 +176,51 @@ describe("DELETE /users/:id", () => {
     expect(newUsers[newUsers.length]).toBeUndefined();
   });
 });
+
+describe("test updating user", () => {
+  test("register & login to get token then favorite", async () => {
+    const register = await supertest(server)
+      .post("/api/auth/register")
+      .send({ username: "david", password: "123123123" });
+    const res = await supertest(server)
+      .post("/api/auth/login")
+      .send({ username: "david", password: "123123123" });
+    // expect(res.type).toBe("application/json");
+    // expect(res.status).toBe(201);
+    // expect(res.body).toHaveProperty("token");
+    // console.log(res);
+    const updatedUser = await supertest(server)
+      .put("/api/auth/user")
+      .set("authorization", res.body.token)
+      .send({ username: "david", password: "321321321" });
+    expect(updatedUser.status).toBe(201);
+
+    // const updateUser = db("users")
+    //   .select("id")
+    //   .where({ username })
+    //   .first()
+    //   .then((id) => {
+    //     console.log(id);
+    //   });
+
+    // const { username } = jwt.verify(token, secrets.secret);
+  });
+});
+
+// describe("PATCH /students/1", () => {
+//   test("It responds with an updated student", async () => {
+//     const newStudent = await request(app).post("/students").send({
+//       name: "Another one",
+//     });
+//     const updatedStudent = await request(app)
+//       .patch(`/students/${newStudent.body.id}`)
+//       .send({ name: "updated" });
+//     expect(updatedStudent.body.name).toBe("updated");
+//     expect(updatedStudent.body).toHaveProperty("id");
+//     expect(updatedStudent.statusCode).toBe(200);
+
+//     // make sure we have 3 students
+//     const response = await request(app).get("/students");
+//     expect(response.body.length).toBe(3);
+//   });
+// });
